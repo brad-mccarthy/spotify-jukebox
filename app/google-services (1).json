@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "344391269643",
+    "firebase_url": "https://jukebox-5d23d.firebaseio.com",
+    "project_id": "jukebox-5d23d",
+    "storage_bucket": "jukebox-5d23d.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:344391269643:android:811a35c282d23d5b88760e",
+        "android_client_info": {
+          "package_name": "com.example.jukebox"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "344391269643-7gelnpl1qujcllcab6nuklhmct5ed40i.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.jukebox",
+            "certificate_hash": "15d021836f688ab4724802db00cdcc39514686da"
+          }
+        },
+        {
+          "client_id": "344391269643-ggm795o2b4krrqggtgmjfdb3bpjouar8.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDTiK85YIWkzW_XnACMb5F6kkD2keKxXuY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "344391269643-ggm795o2b4krrqggtgmjfdb3bpjouar8.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
