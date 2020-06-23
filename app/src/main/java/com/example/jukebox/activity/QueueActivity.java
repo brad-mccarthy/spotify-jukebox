@@ -1,10 +1,6 @@
 package com.example.jukebox.activity;
 
-import android.content.ComponentName;
-import android.content.Context;
 import android.content.Intent;
-import android.media.session.MediaController;
-import android.media.session.MediaSessionManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Button;
@@ -17,7 +13,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.jukebox.R;
 import com.example.jukebox.adapter.QueueAdapter;
 import com.example.jukebox.model.song.Song;
-import com.example.jukebox.service.NotificationListener;
 import com.example.jukebox.utils.FirebasePartyHelper;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.spotify.android.appremote.api.Connector;
@@ -58,7 +53,6 @@ public class QueueActivity extends AppCompatActivity {
             }
         });
         setupRecyclerView();
-        setupMediaPlayer();
     }
 
     @Override
@@ -100,15 +94,6 @@ public class QueueActivity extends AppCompatActivity {
             queueAdapter.addAll(songs);
             queueAdapter.notifyDataSetChanged();
         });
-    }
-
-    private void setupMediaPlayer() {
-        MediaSessionManager mediaSessionManager = (MediaSessionManager) getSystemService(MEDIA_SESSION_SERVICE);
-
-//        List<MediaController> activeSessions = mediaSessionManager.getActiveSessions(new ComponentName(getApplicationContext(), NotificationListener.class));
-        List<MediaController> activeSessions = mediaSessionManager.getActiveSessions(new ComponentName("com.example.jukebox", "com.example.jukebox.service.NotificationListener"));
-
-        activeSessions.forEach(session -> Log.d("help", "session: " + session.getPackageName()));
     }
 
     private void startSongSearchActivity() {
