@@ -11,6 +11,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.jukebox.activity.PlayerActivity;
 import com.example.jukebox.activity.QueueActivity;
 import com.example.jukebox.R;
 
@@ -45,12 +46,14 @@ public class PartiesAdapter extends RecyclerView.Adapter<PartiesAdapter.PartiesV
     }
 
     private View.OnClickListener joinPartyOnCLickListener(String partyName) {
-        return view -> {
-            Intent queueActivityIntent = new Intent(context, QueueActivity.class);
-            queueActivityIntent.putExtra("partyName", partyName);
-            queueActivityIntent.addFlags(FLAG_ACTIVITY_NEW_TASK);
-            context.startActivity(queueActivityIntent);
-        };
+        return onClick -> startPlayerActivity(partyName);
+    }
+
+    private void startPlayerActivity(String partyName) {
+        Intent playerActivityIntent = new Intent(context, PlayerActivity.class);
+        playerActivityIntent.putExtra("partyName", partyName);
+        playerActivityIntent.addFlags(FLAG_ACTIVITY_NEW_TASK);
+        context.startActivity(playerActivityIntent);
     }
 
     @Override

@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Button;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -46,6 +47,11 @@ public class QueueActivity extends AppCompatActivity {
 
         Button playButton = findViewById(R.id.play_button);
         playButton.setOnClickListener(view -> {
+            if (spotifyAppRemote == null) {
+                Toast.makeText(this, "One sec...", Toast.LENGTH_LONG).show();
+                return;
+            }
+
             if (spotifyAppRemote.isConnected()) {
                 Log.d("help", "onCreate: " + queueAdapter.getTopOfQueue().uri);
                 spotifyAppRemote.getPlayerApi()
@@ -66,7 +72,7 @@ public class QueueActivity extends AppCompatActivity {
         SpotifyAppRemote.connect(this, getConnectionParams(),
                 new Connector.ConnectionListener() {
                     public void onConnected(SpotifyAppRemote spotifyAppRemote) {
-                        Log.d("MainActivity", "Connected! Yay!");
+                        Log.d("MyActivity", "Connected! Yay!");
                         QueueActivity.this.spotifyAppRemote = spotifyAppRemote;
                     }
 
