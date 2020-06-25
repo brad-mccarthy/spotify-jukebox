@@ -23,6 +23,7 @@ import static com.example.jukebox.utils.SpotifyDataHelper.getConnectionParams;
 public class PlayerActivity extends AppCompatActivity {
 
     private Button playButton;
+    private Button pauseButton;
     private SpotifyAppRemote spotifyAppRemote;
     private List<Song> queue;
     private String partyName;
@@ -34,6 +35,7 @@ public class PlayerActivity extends AppCompatActivity {
 
         partyName = getIntent().getStringExtra("partyName");
         playButton = findViewById(R.id.play_btn);
+        pauseButton = findViewById(R.id.pause_btn);
 
         FirebasePartyHelper.getAllSongsForAParty(partyName, queryDocumentSnapshots -> queue = queryDocumentSnapshots.toObjects(Song.class)
         );
@@ -48,6 +50,18 @@ public class PlayerActivity extends AppCompatActivity {
                 Log.d("help", "song tro play: " + queue.get(0).uri);
                 spotifyAppRemote.getPlayerApi()
                         .play(queue.get(0).uri);
+            }
+        });
+
+        pauseButton.setOnClickListener(v -> {
+            if (spotifyAppRemote == null) {
+                Toast.makeText(this, "One sec...", Toast.LENGTH_LONG).show();
+                return;
+            }
+
+            if (spotifyAppRemote.isConnected()) {
+                Log.d("help", "song to pause: " + queue.get(0).uri);
+                spotifyAppRemote.getPlayerApi().pause();
             }
         });
 
