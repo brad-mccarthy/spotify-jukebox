@@ -4,8 +4,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Button;
-import android.widget.Toast;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -16,20 +16,16 @@ import com.example.jukebox.adapter.QueueAdapter;
 import com.example.jukebox.model.song.Song;
 import com.example.jukebox.utils.FirebasePartyHelper;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.spotify.android.appremote.api.Connector;
-import com.spotify.android.appremote.api.SpotifyAppRemote;
-import com.spotify.android.appremote.api.error.NotLoggedInException;
-import com.spotify.android.appremote.api.error.UserNotAuthorizedException;
+import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.List;
-
-import static com.example.jukebox.utils.SpotifyDataHelper.getConnectionParams;
 
 public class QueueActivity extends AppCompatActivity {
 
     private String partyName;
     private QueueAdapter queueAdapter;
-    private SpotifyAppRemote spotifyAppRemote;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,65 +37,33 @@ public class QueueActivity extends AppCompatActivity {
         partyName = getIntent().getStringExtra("partyName");
 
         FloatingActionButton fab = findViewById(R.id.fab);
-        fab.setOnClickListener(view -> {
-            startSongSearchActivity();
-        });
+        fab.setOnClickListener(view -> startSongSearchActivity());
 
         Button playButton = findViewById(R.id.play_button);
-        playButton.setOnClickListener(view -> {
-            if (spotifyAppRemote == null) {
-                Toast.makeText(this, "One sec...", Toast.LENGTH_LONG).show();
-                return;
-            }
-
-            if (spotifyAppRemote.isConnected()) {
-                Log.d("help", "onCreate: " + queueAdapter.getTopOfQueue().uri);
-                spotifyAppRemote.getPlayerApi()
-                        .play(queueAdapter.getTopOfQueue().uri);
-            }
-        });
         setupRecyclerView();
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-        SpotifyAppRemote.disconnect(spotifyAppRemote);
-        connectToSpotifyAppRemote();
-    }
-
-    private void connectToSpotifyAppRemote() {
-        SpotifyAppRemote.connect(this, getConnectionParams(),
-                new Connector.ConnectionListener() {
-                    public void onConnected(SpotifyAppRemote spotifyAppRemote) {
-                        Log.d("MyActivity", "Connected! Yay!");
-                        QueueActivity.this.spotifyAppRemote = spotifyAppRemote;
-                    }
-
-                    public void onFailure(Throwable error) {
-                        Log.e("MyActivity", error.getMessage(), error);
-                        if (error instanceof NotLoggedInException || error instanceof UserNotAuthorizedException) {
-                            startActivity(new Intent(QueueActivity.this, LoginActivity.class));
-                        }
-                    }
-                });
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        SpotifyAppRemote.disconnect(spotifyAppRemote);
-    }
 
     @Override
     protected void onResume() {
         super.onResume();
         queueAdapter.clearQueue();
-        FirebasePartyHelper.getAllSongsForAParty(partyName, queryDocumentSnapshots -> {
+        FirebasePartyHelper.test(partyName).addSnapshotListener((queryDocumentSnapshots, e) -> {
+
+            if (e != null || queryDocumentSnapshots == null) {
+                Log.w("HERE21", "Listen failed.", e);
+                return;
+            }
+
             List<Song> songs = queryDocumentSnapshots.toObjects(Song.class);
             queueAdapter.addAll(songs);
             queueAdapter.notifyDataSetChanged();
         });
+//        FirebasePartyHelper.getAllSongsForAParty(partyName, queryDocumentSnapshots -> {
+//            List<Song> songs = queryDocumentSnapshots.toObjects(Song.class);
+//            queueAdapter.addAll(songs);
+//            queueAdapter.notifyDataSetChanged();
+//        });
     }
 
     private void startSongSearchActivity() {

@@ -6,7 +6,6 @@ import android.content.SharedPreferences;
 import androidx.test.core.app.ActivityScenario;
 
 import com.example.jukebox.activity.ChoosePartyActivity;
-import com.example.jukebox.adapter.PartiesAdapter;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -28,9 +27,6 @@ public class ChoosePartyActivityUnitTest {
 
     @Mock
     private Context context;
-
-    @Mock
-    private PartiesAdapter partiesAdapter;
 
     @Before
     public void setup() {

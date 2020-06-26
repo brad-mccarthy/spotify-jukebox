@@ -2,7 +2,6 @@ package com.example.jukebox.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -12,10 +11,10 @@ import com.example.jukebox.R;
 import com.example.jukebox.adapter.PartiesAdapter;
 import com.example.jukebox.service.SpotifyServiceClient;
 import com.example.jukebox.utils.FirebasePartyHelper;
-import com.google.android.gms.tasks.Task;
+import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.Query;
 
 import java.time.Clock;
 
@@ -39,12 +38,23 @@ public class ChoosePartyActivity extends AppCompatActivity {
         setupRecyclerView();
 
         Intent intent = getIntent();
-        if (intent.getData() != null) {
-            retrieveAccessCodeIfItDoesNotExist(intent);
-        }
+
+        retrieveAccessCodeIfItDoesNotExist(intent);
 
         FloatingActionButton addPartyFab = findViewById(R.id.add_party);
         addPartyFab.setOnClickListener(view -> startAddPartyActivity());
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        partiesAdapter.startListening();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        partiesAdapter.stopListening();
     }
 
     private void startAddPartyActivity() {
@@ -54,6 +64,10 @@ public class ChoosePartyActivity extends AppCompatActivity {
 
 
     private void retrieveAccessCodeIfItDoesNotExist(Intent intent) {
+        if (intent.getData() == null) {
+            return;
+        }
+
         String code = intent.getData().getQueryParameter(SPOTIFY_CODE);
         if (!accessCodeExists(this)) {
             SpotifyServiceClient.retrieveTokens(this, code);
@@ -61,32 +75,16 @@ public class ChoosePartyActivity extends AppCompatActivity {
     }
 
     private void setupRecyclerView() {
+        Query query = FirebasePartyHelper.partyTest()
+                .limit(50);
+        FirestoreRecyclerOptions<String> options = new FirestoreRecyclerOptions.Builder<String>()
+                .setQuery(query, DocumentSnapshot::getId)
+                .build();
+
         recyclerView = findViewById(R.id.partiesRecyclerView);
         layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
-        partiesAdapter = new PartiesAdapter(getApplicationContext());
+        partiesAdapter = new PartiesAdapter(options, this);
         recyclerView.setAdapter(partiesAdapter);
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-
-        FirebasePartyHelper.getAllParties(task -> {
-            if (task.isSuccessful() && task.getResult() != null) {
-                addPartiesToAdapter(task);
-            } else {
-                Log.w(TAG, "Error getting parties.", task.getException());
-            }
-        });
-    }
-
-    private void addPartiesToAdapter(Task<QuerySnapshot> task) {
-        partiesAdapter.clearParties();
-        Log.d(TAG, "addPartiesToAdapter: herree");
-        for (QueryDocumentSnapshot document : task.getResult()) {
-            Log.d(TAG, "addPartiesToAdapter: " + document.getId());
-            partiesAdapter.addParty(document.getId());
-        }
     }
 }

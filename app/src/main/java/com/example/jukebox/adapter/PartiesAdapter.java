@@ -11,23 +11,20 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.jukebox.activity.PlayerActivity;
-import com.example.jukebox.activity.QueueActivity;
 import com.example.jukebox.R;
-
-import java.util.ArrayList;
-import java.util.List;
+import com.example.jukebox.activity.PlayerActivity;
+import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
+import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 
-public class PartiesAdapter extends RecyclerView.Adapter<PartiesAdapter.PartiesViewHolder> {
+public class PartiesAdapter extends FirestoreRecyclerAdapter<String, PartiesAdapter.PartiesViewHolder> {
 
-    private List<String> parties;
     private Context context;
 
-    public PartiesAdapter(Context context) {
+    public PartiesAdapter(@NonNull FirestoreRecyclerOptions<String> options, Context context) {
+        super(options);
         this.context = context;
-        parties = new ArrayList<>();
     }
 
     @NonNull
@@ -39,8 +36,7 @@ public class PartiesAdapter extends RecyclerView.Adapter<PartiesAdapter.PartiesV
     }
 
     @Override
-    public void onBindViewHolder(@NonNull PartiesViewHolder holder, int position) {
-        String partyName = parties.get((position));
+    protected void onBindViewHolder(@NonNull PartiesViewHolder holder, int position, @NonNull String partyName) {
         holder.partyName.setText(partyName);
         holder.joinParty.setOnClickListener(joinPartyOnCLickListener(partyName));
     }
@@ -54,21 +50,6 @@ public class PartiesAdapter extends RecyclerView.Adapter<PartiesAdapter.PartiesV
         playerActivityIntent.putExtra("partyName", partyName);
         playerActivityIntent.addFlags(FLAG_ACTIVITY_NEW_TASK);
         context.startActivity(playerActivityIntent);
-    }
-
-    @Override
-    public int getItemCount() {
-        return parties.size();
-    }
-
-    public void addParty(String party) {
-        parties.add(party);
-        notifyDataSetChanged();
-    }
-
-    public void clearParties() {
-        parties.clear();
-        notifyDataSetChanged();
     }
 
     static class PartiesViewHolder extends RecyclerView.ViewHolder {
