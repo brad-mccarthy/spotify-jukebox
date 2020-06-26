@@ -75,7 +75,7 @@ public class ChoosePartyActivity extends AppCompatActivity {
     }
 
     private void setupRecyclerView() {
-        Query query = FirebasePartyHelper.partyTest()
+        Query query = FirebasePartyHelper.getReferenceToParties()
                 .limit(50);
         FirestoreRecyclerOptions<String> options = new FirestoreRecyclerOptions.Builder<String>()
                 .setQuery(query, DocumentSnapshot::getId)

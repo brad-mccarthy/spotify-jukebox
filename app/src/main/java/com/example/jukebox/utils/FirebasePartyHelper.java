@@ -15,9 +15,9 @@ import java.util.Map;
 
 public class FirebasePartyHelper {
 
-    public static final String PARTY_COLLECTION = "party";
-    public static final String SONG_COLLECTION = "songs";
-    public static final String DESCRIPTION_FIELD = "description";
+    private static final String PARTY_COLLECTION = "party";
+    private static final String SONG_COLLECTION = "songs";
+    private static final String DESCRIPTION_FIELD = "description";
 
     public static void addSongToPartyQueue(Context context, SongDTO song, String partyName) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -51,14 +51,14 @@ public class FirebasePartyHelper {
     }
 
 
-    public static CollectionReference test(String partyName) {
+    public static CollectionReference getReferenceToSongs(String partyName) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         return db.collection(PARTY_COLLECTION)
                 .document(partyName)
                 .collection(SONG_COLLECTION);
     }
 
-    public static CollectionReference partyTest() {
+    public static CollectionReference getReferenceToParties() {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         return db.collection(FirebasePartyHelper.PARTY_COLLECTION);
     }

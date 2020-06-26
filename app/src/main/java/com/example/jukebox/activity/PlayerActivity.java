@@ -44,8 +44,8 @@ public class PlayerActivity extends AppCompatActivity {
         queueButton = findViewById(R.id.queue_btn);
         currentSongIndex = 0;
 
-        FirebasePartyHelper.getAllSongsForAParty(partyName, queryDocumentSnapshots -> queue = queryDocumentSnapshots.toObjects(Song.class)
-        );
+        FirebasePartyHelper.getAllSongsForAParty(partyName,
+                queryDocumentSnapshots -> queue = queryDocumentSnapshots.toObjects(Song.class));
 
         playButton.setOnClickListener(click -> play());
         pauseButton.setOnClickListener(click -> pause());

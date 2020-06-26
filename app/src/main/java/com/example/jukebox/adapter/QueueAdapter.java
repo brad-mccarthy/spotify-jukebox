@@ -5,36 +5,21 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.jukebox.R;
 import com.example.jukebox.model.song.Song;
+import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
+import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 
-import java.util.ArrayList;
-import java.util.List;
+public class QueueAdapter extends FirestoreRecyclerAdapter<Song, QueueAdapter.QueueViewHolder> {
 
-public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.QueueViewHolder> {
-
-    private List<Song> queue;
-
-    public QueueAdapter() {
-        this.queue = new ArrayList<>();
+    public QueueAdapter(FirestoreRecyclerOptions<Song> options) {
+        super(options);
     }
 
-    public void addAll(List<Song> songs) {
-        queue.addAll(songs);
-        notifyDataSetChanged();
-    }
-
-    public void clearQueue() {
-        queue.clear();
-        notifyDataSetChanged();
-    }
-
-    public Song getTopOfQueue() {
-        return queue.get(0);
-    }
-
+    @NonNull
     @Override
     public QueueViewHolder onCreateViewHolder(ViewGroup parent,
                                               int viewType) {
@@ -44,13 +29,8 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.QueueViewHol
     }
 
     @Override
-    public void onBindViewHolder(QueueViewHolder holder, int position) {
-        holder.bind(queue.get(position));
-    }
-
-    @Override
-    public int getItemCount() {
-        return queue.size();
+    protected void onBindViewHolder(@NonNull QueueViewHolder holder, int position, @NonNull Song song) {
+        holder.bind(song);
     }
 
     static class QueueViewHolder extends RecyclerView.ViewHolder {

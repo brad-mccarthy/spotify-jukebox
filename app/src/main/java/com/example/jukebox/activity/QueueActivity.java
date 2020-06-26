@@ -2,10 +2,8 @@ package com.example.jukebox.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.widget.Button;
 
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -15,12 +13,9 @@ import com.example.jukebox.R;
 import com.example.jukebox.adapter.QueueAdapter;
 import com.example.jukebox.model.song.Song;
 import com.example.jukebox.utils.FirebasePartyHelper;
+import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.firebase.firestore.EventListener;
-import com.google.firebase.firestore.FirebaseFirestoreException;
-import com.google.firebase.firestore.QuerySnapshot;
-
-import java.util.List;
+import com.google.firebase.firestore.Query;
 
 public class QueueActivity extends AppCompatActivity {
 
@@ -43,29 +38,6 @@ public class QueueActivity extends AppCompatActivity {
         setupRecyclerView();
     }
 
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        queueAdapter.clearQueue();
-        FirebasePartyHelper.test(partyName).addSnapshotListener((queryDocumentSnapshots, e) -> {
-
-            if (e != null || queryDocumentSnapshots == null) {
-                Log.w("HERE21", "Listen failed.", e);
-                return;
-            }
-
-            List<Song> songs = queryDocumentSnapshots.toObjects(Song.class);
-            queueAdapter.addAll(songs);
-            queueAdapter.notifyDataSetChanged();
-        });
-//        FirebasePartyHelper.getAllSongsForAParty(partyName, queryDocumentSnapshots -> {
-//            List<Song> songs = queryDocumentSnapshots.toObjects(Song.class);
-//            queueAdapter.addAll(songs);
-//            queueAdapter.notifyDataSetChanged();
-//        });
-    }
-
     private void startSongSearchActivity() {
         Intent intent = new Intent(QueueActivity.this, SongSearchActivity.class);
         intent.putExtra("partyName", partyName);
@@ -73,10 +45,15 @@ public class QueueActivity extends AppCompatActivity {
     }
 
     private void setupRecyclerView() {
+        Query query = FirebasePartyHelper.getReferenceToSongs(partyName);
+        FirestoreRecyclerOptions<Song> options = new FirestoreRecyclerOptions.Builder<Song>()
+                .setQuery(query, Song.class)
+                .setLifecycleOwner(this)
+                .build();
         RecyclerView recyclerView = findViewById(R.id.songQueue);
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
-        queueAdapter = new QueueAdapter();
+        queueAdapter = new QueueAdapter(options);
         recyclerView.setAdapter(queueAdapter);
     }
 
