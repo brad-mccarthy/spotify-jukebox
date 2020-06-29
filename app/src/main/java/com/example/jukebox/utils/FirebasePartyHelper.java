@@ -27,13 +27,6 @@ public class FirebasePartyHelper {
                 .add(new FirebaseQueueRow(context, song));
     }
 
-    public static void getAllParties(OnCompleteListener<QuerySnapshot> onCompleteListener) {
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        db.collection(FirebasePartyHelper.PARTY_COLLECTION)
-                .get()
-                .addOnCompleteListener(onCompleteListener);
-    }
-
     public static void getAllSongsForAParty(String partyName, OnSuccessListener<QuerySnapshot> onSuccessListener) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         db.collection(PARTY_COLLECTION)

@@ -34,7 +34,6 @@ public class QueueActivity extends AppCompatActivity {
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(view -> startSongSearchActivity());
 
-        Button playButton = findViewById(R.id.play_button);
         setupRecyclerView();
     }
 

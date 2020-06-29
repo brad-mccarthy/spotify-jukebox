@@ -12,9 +12,11 @@ import com.example.jukebox.R;
 import com.example.jukebox.model.song.Song;
 import com.example.jukebox.utils.FirebasePartyHelper;
 import com.spotify.android.appremote.api.Connector;
+import com.spotify.android.appremote.api.PlayerApi;
 import com.spotify.android.appremote.api.SpotifyAppRemote;
 import com.spotify.android.appremote.api.error.NotLoggedInException;
 import com.spotify.android.appremote.api.error.UserNotAuthorizedException;
+import com.spotify.protocol.types.PlayerState;
 
 import java.util.List;
 
@@ -23,13 +25,15 @@ import static com.example.jukebox.utils.SpotifyDataHelper.getConnectionParams;
 
 public class PlayerActivity extends AppCompatActivity {
 
+    public static final int THREE_SECONDS = 3000;
     private Button playButton;
     private Button pauseButton;
     private Button nextButton;
+    private Button queueButton;
+    private Button previousButton;
     private SpotifyAppRemote spotifyAppRemote;
     private List<Song> queue;
     private String partyName;
-    private Button queueButton;
     private Integer currentSongIndex;
 
     @Override
@@ -38,21 +42,57 @@ public class PlayerActivity extends AppCompatActivity {
         setContentView(R.layout.activity_player);
 
         partyName = getIntent().getStringExtra("partyName");
-        playButton = findViewById(R.id.play_btn);
-        pauseButton = findViewById(R.id.pause_btn);
-        nextButton = findViewById(R.id.next_btn);
-        queueButton = findViewById(R.id.queue_btn);
+        setupPlayerButtons();
         currentSongIndex = 0;
 
         FirebasePartyHelper.getAllSongsForAParty(partyName,
                 queryDocumentSnapshots -> queue = queryDocumentSnapshots.toObjects(Song.class));
 
+        connectToSpotifyAppRemote();
+    }
+
+    private void setupPlayerButtons() {
+        findButtonViews();
+        setPlayerOnClickListeners();
+    }
+
+    private void findButtonViews() {
+        playButton = findViewById(R.id.play_btn);
+        pauseButton = findViewById(R.id.pause_btn);
+        nextButton = findViewById(R.id.next_btn);
+        queueButton = findViewById(R.id.queue_btn);
+        previousButton = findViewById(R.id.previous_btn);
+    }
+
+    private void setPlayerOnClickListeners() {
         playButton.setOnClickListener(click -> play());
         pauseButton.setOnClickListener(click -> pause());
         nextButton.setOnClickListener(click -> next());
+        previousButton.setOnClickListener(click -> previous());
         queueButton.setOnClickListener(click -> startQueueActivity());
+    }
 
-        connectToSpotifyAppRemote();
+    private void previous() {
+        if (currentSongIndex == 0) {
+            restartCurrentSong();
+        }
+
+        PlayerApi playerApi = spotifyAppRemote.getPlayerApi();
+        playerApi.getPlayerState().setResultCallback(playerState -> {
+            if (playerState.playbackPosition < THREE_SECONDS) {
+                restartCurrentSong();
+            } else {
+                Song previosSong = queue.get(currentSongIndex - 1);
+                playerApi.play(previosSong.uri);
+                currentSongIndex--;
+            }
+        });
+    }
+
+    private void restartCurrentSong() {
+        if (spotifyAppRemote != null && spotifyAppRemote.isConnected()) {
+            spotifyAppRemote.getPlayerApi().seekTo(0);
+        }
     }
 
     private void startQueueActivity() {
@@ -77,7 +117,7 @@ public class PlayerActivity extends AppCompatActivity {
             Log.d("help", "song tro play: " + queue.get(currentSongIndex + 1).uri);
             spotifyAppRemote.getPlayerApi()
                     .play(queue.get(currentSongIndex + 1).uri);
-            currentSongIndex += 1;
+            currentSongIndex++;
         }
     }
 
@@ -100,10 +140,39 @@ public class PlayerActivity extends AppCompatActivity {
         }
 
         if (spotifyAppRemote.isConnected()) {
-            Log.d("help", "song tro play: " + queue.get(0).uri);
-            spotifyAppRemote.getPlayerApi()
-                    .play(queue.get(0).uri);
+            Log.d("help", "song tro play: " + queue.get(currentSongIndex).uri);
+            resumeCurrentSongIfPausedOrPlayCurrentSongInQueue();
         }
+    }
+
+    private void resumeCurrentSongIfPausedOrPlayCurrentSongInQueue() {
+        PlayerApi playerApi = spotifyAppRemote.getPlayerApi();
+        playerApi.getPlayerState().setResultCallback(playerState -> {
+            if (playerState.isPaused && currentSongIsOnPlayer(playerState)) {
+                playerApi.resume();
+            } else {
+                playerApi.play(queue.get(currentSongIndex).uri);
+            }
+        });
+    }
+
+    private boolean currentSongIsOnPlayer(PlayerState playerState) {
+        return queue.get(currentSongIndex).songName.equals(playerState.track.name);
+    }
+
+    public void subscribeToPlayerState() {
+        spotifyAppRemote.getPlayerApi().subscribeToPlayerState().setEventCallback(playerState -> {
+            String currentPlayingTrackName = playerState.track.name;
+            Log.d("UMMM", "subscribeToPlayerState: HELPY " + currentPlayingTrackName);
+            if (!currentSongIsOnPlayer(playerState) || currentSongIsFinished(playerState)) {
+                next();
+            }
+        });
+    }
+
+    private boolean currentSongIsFinished(PlayerState playerState) {
+        Log.d("VVVV", "currentSongIsFinished: " + playerState.isPaused + " " + playerState.playbackPosition);
+        return playerState.isPaused && playerState.playbackPosition == 0;
     }
 
     @Override
@@ -126,6 +195,7 @@ public class PlayerActivity extends AppCompatActivity {
                     public void onConnected(SpotifyAppRemote spotifyAppRemote) {
                         Log.d("PlayerActivity", "Connected! Yay!");
                         PlayerActivity.this.spotifyAppRemote = spotifyAppRemote;
+                        subscribeToPlayerState();
                     }
 
                     public void onFailure(Throwable error) {

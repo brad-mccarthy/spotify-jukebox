@@ -46,6 +46,11 @@ public class QueueAdapter extends FirestoreRecyclerAdapter<Song, QueueAdapter.Qu
             this.username = v.findViewById(R.id.queue_username);
             this.albumName = v.findViewById(R.id.queue_album_name);
             this.artistNames = v.findViewById(R.id.queue_artist_names);
+
+            songName.setSelected(true);
+            username.setSelected(true);
+            albumName.setSelected(true);
+            artistNames.setSelected(true);
         }
 
         void bind(Song song) {
