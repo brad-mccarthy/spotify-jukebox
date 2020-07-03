@@ -1,4 +1,4 @@
-package com.example.jukebox.service;
+package com.example.jukebox.restservice;
 
 import android.content.Context;
 
@@ -9,7 +9,7 @@ import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-import static com.example.jukebox.service.SpotifyServiceClient.getAccessToken;
+import static com.example.jukebox.restservice.SpotifyServiceClient.getAccessToken;
 
 public class SpotifySongServiceClient {
 

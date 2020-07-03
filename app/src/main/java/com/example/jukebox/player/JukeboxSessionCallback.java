@@ -17,7 +17,8 @@ import java.util.List;
 import static com.example.jukebox.activity.PlayerActivity.THREE_SECONDS;
 import static com.example.jukebox.player.PlayerNotification.buildPausableNotification;
 import static com.example.jukebox.player.PlayerNotification.buildPlayableNotification;
-import static com.example.jukebox.service.SpotifyServiceClient.TAG;
+import static com.example.jukebox.restservice.SpotifyServiceClient.TAG;
+import static com.example.jukebox.utils.FirebasePartyHelper.QUEUE_POSITION_FIELD;
 import static com.example.jukebox.utils.FirebasePartyHelper.getReferenceToParty;
 import static com.example.jukebox.utils.SpotifyDataHelper.getConnectionParams;
 
@@ -43,7 +44,7 @@ public class JukeboxSessionCallback extends MediaSessionCompat.Callback {
         FirebasePartyHelper.getAllSongsForAParty(partyName,
                 queryDocumentSnapshots -> queue = queryDocumentSnapshots.toObjects(Song.class));
         FirebasePartyHelper.getParty(partyName,
-                queryDocumentSnapshots -> queuePosition = (int) (long) queryDocumentSnapshots.get("queuePosition"));
+                queryDocumentSnapshots -> queuePosition = (int) (long) queryDocumentSnapshots.get(QUEUE_POSITION_FIELD));
 
         connectToSpotifyAppRemote();
     }
@@ -69,15 +70,25 @@ public class JukeboxSessionCallback extends MediaSessionCompat.Callback {
         mediaPlaybackService.startService(new Intent(mediaPlaybackService, MediaPlaybackService.class));
         mediaSession.setActive(true);
         setMediaPlaybackState(PlaybackStateCompat.STATE_PLAYING);
-        mediaPlaybackService.startForeground(NOTIFICATION_ID, buildPausableNotification(mediaSession, mediaPlaybackService));
+        mediaPlaybackService.startForeground(NOTIFICATION_ID,
+                buildPausableNotification(mediaSession, mediaPlaybackService, getCurrentSongName(), getCurrentSongArtists()));
         play();
+    }
+
+    private String getCurrentSongArtists() {
+        return queue.get(queuePosition).artistNames;
+    }
+
+    private String getCurrentSongName() {
+        return queue.get(queuePosition).songName;
     }
 
     @Override
     public void onPause() {
         super.onPause();
         setMediaPlaybackState(PlaybackStateCompat.STATE_PAUSED);
-        mediaPlaybackService.startForeground(NOTIFICATION_ID, buildPlayableNotification(mediaSession, mediaPlaybackService));
+        mediaPlaybackService.startForeground(NOTIFICATION_ID,
+                buildPlayableNotification(mediaSession, mediaPlaybackService, getCurrentSongName(), getCurrentSongArtists()));
         mediaPlaybackService.stopForeground(false);
         pause();
     }
@@ -196,7 +207,8 @@ public class JukeboxSessionCallback extends MediaSessionCompat.Callback {
     private void subscribeToPlayerState() {
         spotifyAppRemote.getPlayerApi().subscribeToPlayerState().setEventCallback(playerState -> {
             if (!currentSongIsOnPlayer(playerState)) {
-                mediaPlaybackService.startForeground(NOTIFICATION_ID, buildPlayableNotification(mediaSession, mediaPlaybackService));
+                mediaPlaybackService.startForeground(NOTIFICATION_ID,
+                        buildPlayableNotification(mediaSession, mediaPlaybackService, getCurrentSongName(), getCurrentSongArtists()));
             }
             if (currentSongIsFinished(playerState)) {
                 next();

@@ -14,12 +14,11 @@ import static com.example.jukebox.JukeboxApplication.CHANNEL_ID;
 
 class PlayerNotification {
 
-    static Notification buildPausableNotification(MediaSessionCompat mediaSession, Context context) {
+    static Notification buildPausableNotification(MediaSessionCompat mediaSession, Context context,
+                                                  String songName, String artists)  {
         return new NotificationCompat.Builder(context, CHANNEL_ID)
-                // Add the metadata for the currently playing track
-                .setContentTitle("title")
-                .setContentText("context text")
-                .setSubText("subtext")
+                .setContentTitle(songName)
+                .setContentText(artists)
 //                .setLargeIcon(description.getIconBitmap())
 
                 // Enable launching the player by clicking the notification
@@ -65,11 +64,11 @@ class PlayerNotification {
                 .build();
     }
 
-    static Notification buildPlayableNotification(MediaSessionCompat mediaSession, Context context) {
+    static Notification buildPlayableNotification(MediaSessionCompat mediaSession, Context context,
+                                                  String songName, String artists) {
         return new NotificationCompat.Builder(context, CHANNEL_ID)
-                .setContentTitle("title")
-                .setContentText("context text")
-                .setSubText("subtext")
+                .setContentTitle(songName)
+                .setContentText(artists)
 //                .setLargeIcon(description.getIconBitmap())
                 .setContentIntent(mediaSession.getController().getSessionActivity())
                 .setDeleteIntent(MediaButtonReceiver.buildMediaButtonPendingIntent(context,

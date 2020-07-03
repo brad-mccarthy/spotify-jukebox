@@ -8,7 +8,7 @@ import android.widget.Button;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.jukebox.R;
-import com.example.jukebox.service.SpotifyServiceClient;
+import com.example.jukebox.restservice.SpotifyServiceClient;
 
 import static com.example.jukebox.utils.SpotifyDataHelper.CLIENT_ID;
 import static com.example.jukebox.utils.SpotifyDataHelper.REDIRECT_URI;

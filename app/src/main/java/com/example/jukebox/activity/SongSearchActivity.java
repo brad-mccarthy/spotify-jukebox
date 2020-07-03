@@ -13,7 +13,7 @@ import com.example.jukebox.R;
 import com.example.jukebox.adapter.SearchResultsAdapter;
 import com.example.jukebox.model.SearchResultsDTO;
 import com.example.jukebox.model.song.Tracks;
-import com.example.jukebox.service.SpotifySongServiceClient;
+import com.example.jukebox.restservice.SpotifySongServiceClient;
 import com.example.jukebox.utils.FirebasePartyHelper;
 
 import retrofit2.Call;

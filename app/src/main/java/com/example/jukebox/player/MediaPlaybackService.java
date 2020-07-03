@@ -1,5 +1,6 @@
 package com.example.jukebox.player;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.media.MediaBrowserCompat;
 import android.support.v4.media.session.MediaSessionCompat;
@@ -21,7 +22,7 @@ public class MediaPlaybackService extends MediaBrowserServiceCompat {
         super.onCreate();
 
         // Create a MediaSessionCompat
-        MediaSessionCompat mediaSession = new MediaSessionCompat(this, "PLSWORKPLS");
+        MediaSessionCompat mediaSession = new MediaSessionCompat(this, "jukebox_media_browser_service");
 
         // Enable callbacks from MediaButtons and TransportControls
         mediaSession.setFlags(
@@ -37,12 +38,16 @@ public class MediaPlaybackService extends MediaBrowserServiceCompat {
                                 PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS);
         mediaSession.setPlaybackState(stateBuilder.build());
 
-        // JukeboxSessionCallback() has methods that handle callbacks from a media controller
-        mediaSession.setCallback(new JukeboxSessionCallback("bradsParty", this, mediaSession));
+        mediaSession.setCallback(new JukeboxSessionCallback(getCurrentPartyName(), this, mediaSession));
 
         // Set the session's token so that client activities can communicate with it.
         MediaSessionCompat.Token sessionToken = mediaSession.getSessionToken();
         setSessionToken(sessionToken);
+    }
+
+    private String getCurrentPartyName() {
+        SharedPreferences partyNamePreferences = getSharedPreferences("partyName", MODE_PRIVATE);
+        return partyNamePreferences.getString("currentPartyName", "");
     }
 
     @Nullable

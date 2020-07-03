@@ -1,4 +1,4 @@
-package com.example.jukebox.service;
+package com.example.jukebox.restservice;
 
 import com.example.jukebox.model.RefreshedTokenDTO;
 import com.example.jukebox.model.TokenDTO;

@@ -4,8 +4,10 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+
 import com.example.jukebox.model.UserProfileDTO;
-import com.example.jukebox.service.SpotifyServiceClient;
+import com.example.jukebox.restservice.SpotifyServiceClient;
 import com.spotify.android.appremote.api.ConnectionParams;
 
 import retrofit2.Call;
@@ -26,7 +28,7 @@ public class SpotifyDataHelper {
             SpotifyServiceClient.retrieveUserProfile(context)
                     .enqueue(new Callback<UserProfileDTO>() {
                         @Override
-                        public void onResponse(Call<UserProfileDTO> call, Response<UserProfileDTO> response) {
+                        public void onResponse(Call<UserProfileDTO> call, @NonNull Response<UserProfileDTO> response) {
                             if (response.body() != null) {
                                 setUsername(context, response.body().displayName);
                             }

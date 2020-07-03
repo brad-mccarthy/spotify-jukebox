@@ -9,7 +9,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.jukebox.R;
 import com.example.jukebox.adapter.PartiesAdapter;
-import com.example.jukebox.service.SpotifyServiceClient;
+import com.example.jukebox.restservice.SpotifyServiceClient;
 import com.example.jukebox.utils.FirebasePartyHelper;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;

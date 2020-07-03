@@ -2,6 +2,7 @@ package com.example.jukebox.adapter;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -42,7 +43,15 @@ public class PartiesAdapter extends FirestoreRecyclerAdapter<String, PartiesAdap
     }
 
     private View.OnClickListener joinPartyOnCLickListener(String partyName) {
-        return onClick -> startPlayerActivity(partyName);
+        return onClick -> {
+            updateCurrentPartyName(partyName);
+            startPlayerActivity(partyName);
+        };
+    }
+
+    private void updateCurrentPartyName(String partyName) {
+        SharedPreferences partyNamePreferences = context.getSharedPreferences("partyName", Context.MODE_PRIVATE);
+        partyNamePreferences.edit().putString("currentPartyName", partyName).apply();
     }
 
     private void startPlayerActivity(String partyName) {

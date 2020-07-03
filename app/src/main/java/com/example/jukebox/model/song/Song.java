@@ -4,7 +4,6 @@ import lombok.ToString;
 
 @ToString
 public class Song {
-
     public String songName;
     public String albumName;
     public String artistNames;
