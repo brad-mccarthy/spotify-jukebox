@@ -4,9 +4,10 @@ import android.content.Context;
 
 import com.example.jukebox.model.FirebaseQueueRow;
 import com.example.jukebox.model.song.SongDTO;
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 
@@ -56,4 +57,15 @@ public class FirebasePartyHelper {
         return db.collection(FirebasePartyHelper.PARTY_COLLECTION);
     }
 
+    public static void getParty(String partyName, OnSuccessListener<DocumentSnapshot> onSuccessListener) {
+        getReferenceToParty(partyName)
+                .get()
+                .addOnSuccessListener(onSuccessListener);
+    }
+
+    public static DocumentReference getReferenceToParty(String partyName) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        return db.collection(FirebasePartyHelper.PARTY_COLLECTION)
+                .document(partyName);
+    }
 }
