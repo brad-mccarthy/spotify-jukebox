@@ -14,12 +14,15 @@ import com.google.firebase.firestore.QuerySnapshot;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.google.firebase.firestore.FieldValue.serverTimestamp;
+
 public class FirebasePartyHelper {
 
     private static final String PARTY_COLLECTION = "party";
     private static final String SONG_COLLECTION = "songs";
     private static final String DESCRIPTION_FIELD = "description";
     public static final String QUEUE_POSITION_FIELD = "queuePosition";
+    private static final String TIMESTAMP_FIELD = "timestamp";
 
     public static void addSongToPartyQueue(Context context, SongDTO song, String partyName) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -40,10 +43,16 @@ public class FirebasePartyHelper {
 
     public static void addParty(String partyName, String partyDescription) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
+        Map<String, Object> fields = getPartyFields(partyDescription);
+        db.collection(PARTY_COLLECTION).document(partyName).set(fields);
+    }
+
+    private static Map<String, Object> getPartyFields(String partyDescription) {
         Map<String, Object> fields = new HashMap<>();
         fields.put(DESCRIPTION_FIELD, partyDescription);
         fields.put(QUEUE_POSITION_FIELD, 0);
-        db.collection(PARTY_COLLECTION).document(partyName).set(fields);
+        fields.put(TIMESTAMP_FIELD, serverTimestamp());
+        return fields;
     }
 
 

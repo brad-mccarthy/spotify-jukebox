@@ -97,7 +97,8 @@ public class JukeboxSessionCallback extends MediaSessionCompat.Callback {
     public void onSkipToNext() {
         super.onSkipToNext();
         next();
-
+        mediaPlaybackService.startForeground(NOTIFICATION_ID,
+                buildPausableNotification(mediaSession, mediaPlaybackService, getCurrentSongName(), getCurrentSongArtists()));
     }
 
     @Override
@@ -128,6 +129,8 @@ public class JukeboxSessionCallback extends MediaSessionCompat.Callback {
                 playerApi.play(previousSong.uri);
                 queuePosition--;
                 updateQueuePositionForFirestore(queuePosition);
+                mediaPlaybackService.startForeground(NOTIFICATION_ID,
+                        buildPausableNotification(mediaSession, mediaPlaybackService, getCurrentSongName(), getCurrentSongArtists()));
             }
         });
     }
