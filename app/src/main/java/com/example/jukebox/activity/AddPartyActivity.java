@@ -5,13 +5,12 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.jukebox.R;
 import com.example.jukebox.utils.FirebasePartyHelper;
-import com.google.android.material.snackbar.Snackbar;
-import com.google.firebase.firestore.FirebaseFirestore;
 
 public class AddPartyActivity extends AppCompatActivity {
 
@@ -32,14 +31,22 @@ public class AddPartyActivity extends AppCompatActivity {
             String partyName = partyNameInput.getText().toString();
             String partyDescription = partyDescriptionInput.getText().toString();
 
-            if (!(partyName.isEmpty()) && !(partyDescription.isEmpty())){
-                FirebasePartyHelper.addParty(partyName, partyDescription);
-                startActivity(new Intent(AddPartyActivity.this, ChoosePartyActivity.class));
+            if (!(partyName.isEmpty()) && !(partyDescription.isEmpty())) {
+                addPartyIfItDoesNotAlreadyExist(partyName, partyDescription, v);
             } else {
-                Snackbar.make(v, "Your party needs a name and description!", Snackbar.LENGTH_LONG);
+                Toast.makeText(this, "Your party needs a name and description!", Toast.LENGTH_LONG).show();
             }
         });
     }
 
-
+    private void addPartyIfItDoesNotAlreadyExist(String partyName, String partyDescription, View v) {
+        FirebasePartyHelper.getParty(partyName, documentSnapshot -> {
+            if (documentSnapshot.exists()) {
+                Toast.makeText(this, "Party Name is taken, Sorry !!", Toast.LENGTH_LONG).show();
+            } else {
+                FirebasePartyHelper.addParty(partyName, partyDescription);
+                startActivity(new Intent(AddPartyActivity.this, ChoosePartyActivity.class));
+            }
+        });
+    }
 }
