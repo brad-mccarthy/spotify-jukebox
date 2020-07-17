@@ -25,7 +25,7 @@ public class FirebaseQueueRow {
         songName = song.name;
         albumName = song.album.name;
         artistNames = song.joinArtists();
-        userName = SpotifyDataHelper.getUsername(context);
+        userName = SpotifyDataHelper.getCurrentUsername(context);
         uri = song.uri;
     }
 

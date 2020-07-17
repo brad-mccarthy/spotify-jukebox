@@ -14,12 +14,16 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.jukebox.R;
 import com.example.jukebox.player.MediaPlaybackService;
+import com.example.jukebox.utils.FirebasePartyHelper;
+import com.example.jukebox.utils.SpotifyDataHelper;
 
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
+import static com.example.jukebox.utils.FirebasePartyHelper.HOST_FIELD;
 
 public class PlayerActivity extends AppCompatActivity {
 
     public static final int THREE_SECONDS = 3000;
+    private boolean userIsHost;
     private Button playButton;
     private Button pauseButton;
     private Button nextButton;
@@ -65,16 +69,38 @@ public class PlayerActivity extends AppCompatActivity {
         setContentView(R.layout.activity_player);
 
         partyName = getIntent().getStringExtra("partyName");
+
+        setupMediaBrowserIfUserIsPartyHost();
+    }
+
+    private void setupMediaBrowserIfUserIsPartyHost() {
+        FirebasePartyHelper.getParty(partyName,
+                queryDocumentSnapshots -> {
+                    String hostUserName = (String) queryDocumentSnapshots.get(HOST_FIELD);
+                    String currentUsername = SpotifyDataHelper.getCurrentUsername(this);
+                    if (hostUserName != null && hostUserName.equals(currentUsername)) {
+                        userIsHost = true;
+                        setupMediaBrowser();
+                    } else {
+                        userIsHost = false;
+                    }
+                });
+    }
+
+    private void setupMediaBrowser() {
         mediaBrowser = new MediaBrowserCompat(this,
                 new ComponentName(this, MediaPlaybackService.class),
                 connectionCallbacks,
                 null);
+        mediaBrowser.connect();
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        mediaBrowser.connect();
+        if (userIsHost) {
+            mediaBrowser.connect();
+        }
     }
 
     @Override

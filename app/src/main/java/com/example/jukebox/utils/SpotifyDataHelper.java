@@ -22,7 +22,7 @@ public class SpotifyDataHelper {
     private static final String SPOTIFY_DATA = "spotifyData";
     private static final String USERNAME_KEY = "username";
 
-    public static String getUsername(Context context) {
+    public static String getCurrentUsername(Context context) {
         SharedPreferences spotifyDataPreferences = context.getSharedPreferences(SPOTIFY_DATA, Context.MODE_PRIVATE);
         if (!usernameExists(context)) {
             SpotifyServiceClient.retrieveUserProfile(context)

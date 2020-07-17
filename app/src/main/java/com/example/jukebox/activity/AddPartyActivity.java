@@ -44,7 +44,7 @@ public class AddPartyActivity extends AppCompatActivity {
             if (documentSnapshot.exists()) {
                 Toast.makeText(this, "Party Name is taken, Sorry !!", Toast.LENGTH_LONG).show();
             } else {
-                FirebasePartyHelper.addParty(partyName, partyDescription);
+                FirebasePartyHelper.addParty(partyName, partyDescription, this);
                 startActivity(new Intent(AddPartyActivity.this, ChoosePartyActivity.class));
             }
         });

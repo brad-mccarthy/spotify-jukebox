@@ -10,7 +10,7 @@
         android:id="@+id/songSearchbar"
         android:layout_width="233dp"
         android:layout_height="56dp"
-        android:layout_marginStart="16dp"
+        android:layout_marginStart="4dp"
         android:layout_marginTop="16dp"
         android:ems="10"
         android:hint="Search For Songs Here!"
@@ -20,17 +20,19 @@
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/searchResults"
-        android:layout_width="418dp"
-        android:layout_height="972dp"
+        android:layout_width="360dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/songSearchbar" />
 
     <Button
         android:id="@+id/search_btn"
-        android:layout_width="138dp"
-        android:layout_height="48dp"
-        android:layout_marginTop="16dp"
+        android:layout_width="114dp"
+        android:layout_height="49dp"
         android:text="Search"
+        app:layout_constraintBottom_toBottomOf="@+id/songSearchbar"
         app:layout_constraintStart_toEndOf="@+id/songSearchbar"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="@+id/songSearchbar" />
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -52,26 +52,25 @@ public class SearchResultsAdapter extends RecyclerView.Adapter<SearchResultsAdap
         return searchResults.size();
     }
 
-    class SearchResultsViewHolder extends RecyclerView.ViewHolder {
+    static class SearchResultsViewHolder extends RecyclerView.ViewHolder {
 
         TextView songName;
         TextView albumName;
         TextView artistName;
-        View resultClick;
 
         SearchResultsViewHolder(@NonNull View itemView) {
             super(itemView);
             songName = itemView.findViewById(R.id.song_name);
-            albumName = itemView.findViewById(R.id.song_album);
             artistName = itemView.findViewById(R.id.song_artist);
-            resultClick = itemView.findViewById(R.id.result_click);
+
+            songName.setSelected(true);
+            artistName.setSelected(true);
         }
 
         void bind(SongDTO song, OnSearchResultClickListener listener) {
             songName.setText(song.name);
-            albumName.setText(song.album.name);
             artistName.setText(song.joinArtists());
-            resultClick.setOnClickListener(v -> listener.onSearchResultClick(song));
+            itemView.setOnClickListener(v -> listener.onSearchResultClick(song));
         }
     }
 }

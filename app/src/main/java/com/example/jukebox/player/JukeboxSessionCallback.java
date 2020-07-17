@@ -1,12 +1,14 @@
 package com.example.jukebox.player;
 
 import android.content.Intent;
+import android.os.Handler;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.util.Log;
 
 import com.example.jukebox.model.song.Song;
 import com.example.jukebox.utils.FirebasePartyHelper;
+import com.google.firebase.firestore.ListenerRegistration;
 import com.spotify.android.appremote.api.Connector;
 import com.spotify.android.appremote.api.PlayerApi;
 import com.spotify.android.appremote.api.SpotifyAppRemote;
@@ -25,14 +27,14 @@ import static com.example.jukebox.utils.SpotifyDataHelper.getConnectionParams;
 public class JukeboxSessionCallback extends MediaSessionCompat.Callback {
 
     private static int NOTIFICATION_ID = 12345666;
-
+    private ListenerRegistration songsListenerRegistration;
     private SpotifyAppRemote spotifyAppRemote;
     private int queuePosition;
     private String partyName;
     private MediaPlaybackService mediaPlaybackService;
     private List<Song> queue;
     private MediaSessionCompat mediaSession;
-
+    private Handler playNextSongHandler;
 
     JukeboxSessionCallback(String partyName,
                            MediaPlaybackService mediaPlaybackService,
@@ -40,9 +42,11 @@ public class JukeboxSessionCallback extends MediaSessionCompat.Callback {
         this.partyName = partyName;
         this.mediaPlaybackService = mediaPlaybackService;
         this.mediaSession = mediaSession;
+        this.playNextSongHandler = new Handler();
 
-        FirebasePartyHelper.getAllSongsForAParty(partyName,
-                queryDocumentSnapshots -> queue = queryDocumentSnapshots.toObjects(Song.class));
+        songsListenerRegistration = FirebasePartyHelper.getAllSongsForAParty(partyName,
+                (querySnapshot, e) -> queue = querySnapshot.toObjects(Song.class));
+
         FirebasePartyHelper.getParty(partyName,
                 queryDocumentSnapshots -> queuePosition = (int) (long) queryDocumentSnapshots.get(QUEUE_POSITION_FIELD));
 
@@ -67,6 +71,9 @@ public class JukeboxSessionCallback extends MediaSessionCompat.Callback {
     @Override
     public void onPlay() {
         super.onPlay();
+        if (queue.isEmpty()) {
+            return;
+        }
         mediaPlaybackService.startService(new Intent(mediaPlaybackService, MediaPlaybackService.class));
         mediaSession.setActive(true);
         setMediaPlaybackState(PlaybackStateCompat.STATE_PLAYING);
@@ -114,6 +121,8 @@ public class JukeboxSessionCallback extends MediaSessionCompat.Callback {
         mediaSession.setActive(true);
         mediaPlaybackService.stopForeground(false);
         SpotifyAppRemote.disconnect(spotifyAppRemote);
+        songsListenerRegistration.remove();
+        playNextSongHandler.removeCallbacksAndMessages(null);
     }
 
     private void previous() {
@@ -148,7 +157,6 @@ public class JukeboxSessionCallback extends MediaSessionCompat.Callback {
     private void next() {
         if (spotifyAppRemote == null) {
             Log.d("help", "app remote is null onNext: " + queue.get(queuePosition).uri);
-
             return;
         }
 
@@ -222,7 +230,17 @@ public class JukeboxSessionCallback extends MediaSessionCompat.Callback {
                     mediaSession.getController().getPlaybackState().getState() == PlaybackStateCompat.STATE_PAUSED) {
                 onPlay();
             }
+
+            setPlayNextSongCallback(playerState);
         });
+    }
+
+    private void setPlayNextSongCallback(PlayerState playerState) {
+        playNextSongHandler.removeCallbacksAndMessages(null);
+        if (!playerState.isPaused && currentSongIsOnPlayer(playerState)) {
+            long timeUntilSongIsFinished = playerState.track.duration - playerState.playbackPosition;
+            playNextSongHandler.postDelayed(this::next, timeUntilSongIsFinished - 2000);
+        }
     }
 
     private void updateQueuePositionForFirestore(Integer position) {
